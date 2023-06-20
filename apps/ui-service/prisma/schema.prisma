@@ -1,0 +1,48 @@
+datasource postgres {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  createdAt        DateTime  @default(now())
+  firstName        String?
+  id               String    @id @default(cuid())
+  incomingMessage  Message[] @relation(name: "incomingMessage")
+  lastName         String?
+  outgoingMessages Message[] @relation(name: "fromUser")
+  password         String
+  roles            Json
+  updatedAt        DateTime  @updatedAt
+  username         String    @unique
+}
+
+model Chat {
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  messages  Message[]
+  name      String?
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  chat       Chat[]
+  content    String?
+  createdAt  DateTime  @default(now())
+  fromUser   User?     @relation(name: "fromUser", fields: [fromUserId], references: [id])
+  fromUserId String?
+  id         String    @id @default(cuid())
+  readAt     DateTime?
+  toUser     User?     @relation(name: "incomingMessage", fields: [toUserId], references: [id])
+  toUserId   String?
+  updatedAt  DateTime  @updatedAt
+}
+
+model Attachment {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  updatedAt DateTime @updatedAt
+}
